@@ -1,11 +1,31 @@
+<!DOCTYPE html>
 <html>
 <body>
     <script src="https://js.puter.com/v2/"></script>
     <script>
-    (async () => {
-        const resp = await puter.ai.chat('good', {model: 'grok-beta', stream: true });
-        for await ( const part of resp ) puter.print(part?.text?.replaceAll('\n', '<br>'));
-    })();
+    async function sendQuestion() {
+        let question = document.getElementById("question").value;
+        let responseBox = document.getElementById("response");
+        responseBox.innerHTML = "Thinking...";
+
+        // Send question to Flask
+        let serverResponse = await fetch("/ask", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({query: question})
+        });
+
+        let result = await serverResponse.json();
+        let aiResponse = result.answer;
+        
+        responseBox.innerHTML = aiResponse;
+    }
     </script>
+
+    <h2>AI Chat</h2>
+    <input type="text" id="question" placeholder="Ask something...">
+    <button onclick="sendQuestion()">Ask</button>
+    <p><strong>AI Response:</strong></p>
+    <div id="response">Waiting for input...</div>
 </body>
 </html>
